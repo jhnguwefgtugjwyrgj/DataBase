@@ -157,7 +157,7 @@ int Students::Getcol() {
 }
 
 string Students::Getfio(int n) {
-    return mat[n-1][0]+" "+mat[n-1][1]+" "+mat[n-1][2];
+    if (n-1 < row) return mat[n-1][0]+" "+mat[n-1][1]+" "+mat[n-1][2];
 }
 
 void Students::Del(int n) {
@@ -189,7 +189,7 @@ int main() {
 	while (true) {
 	    cout << "Enter command (help for command list)" << endl;
 	    string com;
-	    cin >> com;
+	    getline(cin, com);
 	    if (com == "exit") break;
 	    if (com == "add students string") {
 	        pup.Insert();
@@ -211,7 +211,7 @@ int main() {
 	    }
 	    if (com == "add subject") {
 	        sub.Insert();
-	        head_ans.push_back(sub.Choose(Getrow())[0]);
+	        head_ans.push_back(sub.Choose(sub.Getrow())[0]);
 	        for (int i=0;i<ans.size();i++) {
 	            ans[i].push_back(0);
 	        }
@@ -229,7 +229,7 @@ int main() {
 	        Fout << endl;
 	        for (int i=0;i<ans.size();i++) {
 	            Fout << fio[i];
-	            for (int j=0;j<ans[i];j++) {
+	            for (int j=0;j<ans[i].size();j++) {
 	                if (g[i][j] > 0) Fout << ans[i][j]/g[i][j] << " ";
 	                else Fout << 0 << " ";
 	            }
