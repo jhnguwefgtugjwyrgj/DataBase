@@ -24,7 +24,23 @@ class Students {
 		int Getrow();
 		string Getfio(int n);
 		void Del(int n);
+		void Cellcahnge(int i, int j, string s);
 };
+
+bool check(Students s, int n) {
+    return (n <= s.Getrow() && n >= 1);
+}
+
+bool check_num(string s) {
+    try {
+        int a;
+        a = stoi(s);
+        return true;
+    }
+    catch (...) {
+        return false;
+    }
+}
 
 Students::Students(string name="students.txt") {
 	ifstream Fin(name.c_str());
@@ -108,11 +124,13 @@ void Students::Insert() {
 }
 
 void Students::Out() {
+    cout << "id ";
     for (int i=0;i<col;i++) {
         cout << head[i] << " ";
     }
     cout << endl;
     for (int i=0;i<row;i++) {
+        cout << i+1 << " ";
         for (int j=0;j<col;j++) {
             cout << mat[i][j] << " ";
         }
@@ -121,19 +139,14 @@ void Students::Out() {
 }
 
 void Students::Change(int n) {
-    if (n <= row && n>=1) {
-        vector <string> line(col);
-    	for (int i=0;i<col;i++) {
-    	    cout << "Print " << head[i] << ": ";
-    	    string t;
-    	    cin >> t;
-    	    line[i] = t;
-    	}
-    	mat[n-1] = line;
-    }
-    else {
-        cout << "wrong number" << endl;
-    }
+    vector <string> line(col);
+	for (int i=0;i<col;i++) {
+	    cout << "Print " << head[i] << ": ";
+	    string t;
+	    cin >> t;
+	    line[i] = t;
+	}
+	mat[n-1] = line;
 }
 
 vector <string> Students::Choose(int n) {
@@ -181,14 +194,20 @@ vector <string> Students::NewMark() {
     return line;
 }
 
+void Students::Cellcahnge(int i, int j, string s) {
+    mat[i][j] = s;
+}
+
 
 int main() {
 	Students pup("students.txt");
 	Students sub("subjects.txt");
 	Students mar("marks.txt");
-	vector <vector <int> > ans(sub.Getrow(), vector<int>(sub.Getrow(), 0)), g(sub.Getrow(), vector<int>(sub.Getrow(), 0));
+	vector <vector <int> > ans(pup.Getrow(), vector<int>(sub.Getrow(), 0)), g(pup.Getrow(), vector<int>(sub.Getrow(), 0));
+	//cout << ans.size() << " " << ans[0].size()<<endl;
 	for (int i=0;i<mar.Getrow();i++) {
 	    vector <string> e = mar.Choose(i+1);
+	    //cout << e[0] << " " << e[1] << endl;
 	    ans[stoi(e[0])-1][stoi(e[1])-1] += stoi(e[2]);
 	    g[stoi(e[0])-1][stoi(e[1])-1]++;
 	}
@@ -215,16 +234,18 @@ int main() {
             ans.push_back(vector<int>(head_ans.size()-1, 0));
             g.push_back(vector<int>(head_ans.size()-1, 0));
 	    }
+	    if (com == "add students column") {
+	        pup.NewCol();
+	    }
 	    if (com == "add mark") { 
 	        vector <string> e = mar.NewMark();
-	        if (stoi(e[0]) >= 1 && stoi(e[0]) <= pup.Getrow() &&
-	        stoi(e[1]) >= 1 && stoi(e[1]) <= sub.Getrow()) {
+	        if (check_num(e[0])&& check_num(e[1]) && check_num(e[2]) && check(pup, stoi(e[0])) && check(sub, stoi(e[1]))) {
 	            //cout << stoi(e[0])-1 << " " << stoi(e[1])-1 << " " << ;
 	            ans[stoi(e[0])-1][stoi(e[1])-1] += stoi(e[2]);
 	            g[stoi(e[0])-1][stoi(e[1])-1]++;
 	        }
 	        else {
-	            cout << e[0] << " " << e[1] << " " << e[2] << " Uncorrect data\n";
+	            cout << "Uncorrect data\n";
 	            mar.Del(mar.Getrow());
 	        }
 	    }
@@ -239,8 +260,11 @@ int main() {
 	    if (com == "change student") {
 	        int k;
 	        cin >> k;
-	        pup.Change(k);
-	        fio[k-1] = pup.Getfio(k);
+	        if (check(pup, k)) {
+	            pup.Change(k);
+	            fio[k-1] = pup.Getfio(k);
+	        }
+	        else cout << "Wrong number\n";
 	    }
 	    if (com == "get request") {
 	        ofstream Fout("request.txt");
@@ -267,8 +291,23 @@ int main() {
 	    if (com == "out marks") {
 	        mar.Out();
 	    }
+	    if (com == "delete student") {
+	        int t, i=0;
+	        cin >> t;
+	        if (check(pup, t)) {
+	            pup.Del(t);
+	            ans.erase(ans.begin()+(t-1));
+	            g.erase(g.begin()+(t-1));
+	            while (i<mar.Getrow()) {
+	                vector <string> e = mar.Choose(i+1);
+	                if (stoi(e[0]) == t) mar.Del(i+1);
+	                else if (stoi(e[0])>t) mar.Cellcahnge(i, 0, to_string(stoi(e[0])-1));
+	                i++;
+	            }
+	        }
+	        else cout << "Wrong number\n";
+	    }
 	    if (com == "help") {}
-	    
 	}
 	sub.Close();
 	mar.Close();
