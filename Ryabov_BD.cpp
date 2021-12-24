@@ -78,17 +78,20 @@ void Students::Close() {
 	for (size_t i=0;i<col-1;i++) {
 		Fout << head[i] << " ";
 	}
-	Fout << head[col-1] << endl;
+	Fout << head[col-1];
+	if (row > 0) Fout << endl;
 	for (int i=0;i<row-1;i++) {
 		for (int j=0;j<col;j++) {
 			if (j != col-1) Fout << mat[i][j] << " ";
 			else Fout << mat[i][j] << endl;
 		}
 	}
-	for (int j=0;j<col;j++) {
-			if (j != col-1) Fout << mat[row-1][j] << " ";
-			else Fout << mat[row-1][j];
-		}
+	if (row > 0) {
+	    for (int j=0;j<col;j++) {
+		    if (j != col-1) Fout << mat[row-1][j] << " ";
+		    else Fout << mat[row-1][j];
+	    }
+	}
 	Fout.close();
 }
 
@@ -157,7 +160,7 @@ int Students::Getcol() {
 }
 
 string Students::Getfio(int n) {
-    if (n-1 < row) return mat[n-1][0]+" "+mat[n-1][1]+" "+mat[n-1][2];
+    return mat[n-1][0]+" "+mat[n-1][1]+" "+mat[n-1][2];
 }
 
 void Students::Del(int n) {
@@ -174,6 +177,7 @@ vector <string> Students::NewMark() {
     cout << "Print mark: ";
     cin >> line[2];
     mat.push_back(line);
+    row++;
     return line;
 }
 
@@ -182,30 +186,45 @@ int main() {
 	Students pup("students.txt");
 	Students sub("subjects.txt");
 	Students mar("marks.txt");
-	vector <vector <int> > ans, g;
+	vector <vector <int> > ans(sub.Getrow(), vector<int>(sub.Getrow(), 0)), g(sub.Getrow(), vector<int>(sub.Getrow(), 0));
+	for (int i=0;i<mar.Getrow();i++) {
+	    vector <string> e = mar.Choose(i+1);
+	    ans[stoi(e[0])-1][stoi(e[1])-1] += stoi(e[2]);
+	    g[stoi(e[0])-1][stoi(e[1])-1]++;
+	}
 	vector <string> fio;
+	for (int i=0;i<pup.Getrow();i++) {
+	    fio.push_back(pup.Getfio(i+1));
+	}
 	vector <string> head_ans(1, "fio");
+	for (int i=0;i<sub.Getrow();i++) {
+	    head_ans.push_back(sub.Choose(i+1)[0]);
+	}
 	cout << "Welcome" << endl;
+	cout << "Enter command (help for command list)" << endl;
 	while (true) {
-	    cout << "Enter command (help for command list)" << endl;
 	    string com;
 	    getline(cin, com);
-	    if (com == "exit") break;
+	    if (com == "exit") {
+	        break;
+	    }
 	    if (com == "add students string") {
 	        pup.Insert();
 	        string t = pup.Getfio(pup.Getrow());
             fio.push_back(t);
             ans.push_back(vector<int>(head_ans.size()-1, 0));
+            g.push_back(vector<int>(head_ans.size()-1, 0));
 	    }
-	    if (com == "add mark") {
+	    if (com == "add mark") { 
 	        vector <string> e = mar.NewMark();
 	        if (stoi(e[0]) >= 1 && stoi(e[0]) <= pup.Getrow() &&
 	        stoi(e[1]) >= 1 && stoi(e[1]) <= sub.Getrow()) {
-	            ans[stoi(e[0])][stoi(e[1])] += stoi(e[3]);
-	            g[stoi(e[0])][stoi(e[1])]++;
+	            //cout << stoi(e[0])-1 << " " << stoi(e[1])-1 << " " << ;
+	            ans[stoi(e[0])-1][stoi(e[1])-1] += stoi(e[2]);
+	            g[stoi(e[0])-1][stoi(e[1])-1]++;
 	        }
 	        else {
-	            cout << "Uncorrect data";
+	            cout << e[0] << " " << e[1] << " " << e[2] << " Uncorrect data\n";
 	            mar.Del(mar.Getrow());
 	        }
 	    }
@@ -214,12 +233,14 @@ int main() {
 	        head_ans.push_back(sub.Choose(sub.Getrow())[0]);
 	        for (int i=0;i<ans.size();i++) {
 	            ans[i].push_back(0);
+	            g[i].push_back(0);
 	        }
 	    }
 	    if (com == "change student") {
 	        int k;
 	        cin >> k;
 	        pup.Change(k);
+	        fio[k-1] = pup.Getfio(k);
 	    }
 	    if (com == "get request") {
 	        ofstream Fout("request.txt");
@@ -237,9 +258,20 @@ int main() {
 	        }
 	        Fout.close();
 	    }
+	    if (com == "out subjects") {
+	        sub.Out();
+	    }
+	    if (com == "out students") {
+	        pup.Out();
+	    }
+	    if (com == "out marks") {
+	        mar.Out();
+	    }
+	    if (com == "help") {}
+	    
 	}
 	sub.Close();
 	mar.Close();
 	pup.Close();
 	return 0;
-}
+} 
