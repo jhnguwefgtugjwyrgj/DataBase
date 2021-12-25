@@ -273,7 +273,7 @@ int main() {
 	        }
 	        Fout << endl;
 	        for (int i=0;i<ans.size();i++) {
-	            Fout << fio[i];
+	            Fout << fio[i] << " ";
 	            for (int j=0;j<ans[i].size();j++) {
 	                if (g[i][j] > 0) Fout << ans[i][j]/g[i][j] << " ";
 	                else Fout << 0 << " ";
@@ -307,10 +307,21 @@ int main() {
 	        }
 	        else cout << "Wrong number\n";
 	    }
-	    if (com == "help") {}
+	    if (com == "help") {
+			cout << "command list:\nadd students column - adds column for students table\n" <<
+			"add students string - adds new student\n" <<
+			"add mark - adds a grade for a student(id) by subject(id)\n" <<
+			"add subject - adds subject\n" <<
+			"change student - changes data for a student with some id\n" <<
+			"out subjects/students/marks - output information about subjects/students/marks\n" <<
+			"delete student - delete student with some id and his marks\n" <<
+			"get request - creates a file with average grades for students\n" <<
+			"exit - ends the program\n";
+		}
 	}
 	sub.Close();
 	mar.Close();
 	pup.Close();
 	return 0;
 } 
+
